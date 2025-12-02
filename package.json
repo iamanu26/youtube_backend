@@ -1,0 +1,16 @@
+{
+  "name": "youtube_backend",
+  "version": "1.0.0",
+  "description": "bulding a backend like youtube with adding some extra feature",
+  "keywords": [
+    "javascript",
+    "backend"
+  ],
+  "license": "ISC",
+  "author": "Anurag Dubey",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
