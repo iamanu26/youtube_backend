@@ -17,4 +17,12 @@ app.use(express.static("public"))
 
 app.use(cookieParser()) // it use to store some thing to the user cookie and only server can read it
 
+//routes import
+import userRouter from './routes/user.routes.js'
+
+
+// routes declaration
+app.use("/api/v1/users" , userRouter)
+
+
 export { app }
