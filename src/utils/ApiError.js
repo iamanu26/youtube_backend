@@ -1,5 +1,8 @@
-class ApiError extends Error{
+class ApiError extends Error{ 
+    // building a class which is extension of error class that exist in the js i.e. inhariting the property of error class
     constructor(
+        //building a constructor with default value because when user did not send any parameter then it will use the default and donot break the APIERROR code
+        
         statusCode,
         message = "Something went wrong",
         error = [],

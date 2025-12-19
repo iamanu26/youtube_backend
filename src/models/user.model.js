@@ -59,7 +59,7 @@ userSchema.pre("save" , async function(next) {
     //when ever user access the user model it run the all field , so we dont have to save the password again and again we are using this if condition check
 
     if(!this.Modified("password")) return next()
-    this.password = bcrypt.hash(this.password , 10)
+    this.password = await bcrypt.hash(this.password , 10)
     next()
 } )
 
