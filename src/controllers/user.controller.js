@@ -16,7 +16,7 @@ const registerUser = asyncHandler(async (req , res) => {
     // return res
 
     const {fullName , email , username , password} = req.body
-    console.log("email: ", email);
+    //console.log("email: ", email);
 
     //we can also use the if condition to check all the fields, but js also provede the "some" method
     // which check all the at once
@@ -40,7 +40,15 @@ const registerUser = asyncHandler(async (req , res) => {
     //NOTE: we are taking the reference of the local path because right now the image is at multer i.e. middleware and it is not uploded on cloudinary
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;  // it will through error if we didnot provide the cover image
+    // thre exist another path to find the path of cover image and it will do it without throing the erroe
+
+    let coverImageLocalPath
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0)
+    {
+        coverImageLocalPath = req.files.coverImage[0].path;
+        
+    }
 
     if(!avatarLocalPath){
         throw new ApiError(400 , "Avatar file is required")
