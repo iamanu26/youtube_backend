@@ -8,7 +8,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            lowcase: true,
+            lowercase: true,
             trim: true,
             index:true
         },
@@ -16,7 +16,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            lowcase: true,
+            lowercase: true,
             trim: true,
             
         },
@@ -55,12 +55,12 @@ const userSchema = new Schema(
     }
 )
 //Here we don't use the arrow functio()=>{} because it dont have a current context access that is of (this)
-userSchema.pre("save" , async function(next) {
+userSchema.pre("save" , async function() {
     //when ever user access the user model it run the all field , so we dont have to save the password again and again we are using this if condition check
 
     if(!this.isModified("password")) return ;
     this.password = await bcrypt.hash(this.password , 10);
-    
+   
 } )
 
 userSchema.methods.isPasswordCorrect = async function(password){

@@ -8,6 +8,9 @@ const generateAccessAndRefereshToken = async(userId)=>
     {
     try {
         const user =  await User.findById(userId)
+        if (!user) {
+            throw new ApiError(404, "User not found while generating token")
+        }
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
 
@@ -20,6 +23,40 @@ const generateAccessAndRefereshToken = async(userId)=>
         throw new ApiError(500 , "Something went wrong while generating referesh and access token")
     }
 }
+
+// const generateAccessAndRefereshToken = async (userId) => {
+//     try {
+//         const user = await User.findById(userId);
+
+//         if (!user) {
+//             throw new ApiError(404, "User not found while generating token");
+//         }
+
+//         // 🔍 HARD DEBUG (THIS WILL END THE ISSUE)
+//         console.log("JWT ENV CHECK →", {
+//             ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+//             ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY,
+//             REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+//             REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY,
+//         });
+
+//         const accessToken = user.generateAccessToken();
+//         const refreshToken = user.generateRefreshToken();
+
+//         user.refreshToken = refreshToken;
+//         await user.save({ validateBeforeSave: false });
+
+//         return { accessToken, refreshToken };
+
+//     } catch (error) {
+//         console.error("🔥 REAL TOKEN ERROR:", error);
+//         throw new ApiError(
+//             500,
+//             error.message || "Token generation failed"
+//         );
+//     }
+// };
+
 
 const registerUser = asyncHandler(async (req , res) => {
     // get user details from frontnd
@@ -110,7 +147,7 @@ const loginUser = asyncHandler(async(req , res)=>{
     // send secure cookie
 
     const {email , username , password} = req.body
-    if(!(username || email)) {
+    if(!username && !email) {
         throw new ApiError(400 , "Username or email is required")
     }
 
@@ -136,13 +173,13 @@ const loginUser = asyncHandler(async(req , res)=>{
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: process.env.NODE_ENV === "production"
     }
 
     return res
     .status(200)
     .cookie("accessToken" , accessToken ,options)
-    .cookie("refreshToken" , refreshToken , option)
+    .cookie("refreshToken" , refreshToken , options)
     .json(
         new ApiResponse(
             200 , 
@@ -170,13 +207,13 @@ const logoutUser = asyncHandler(async(req , res)=>{
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: process.env.NODE_ENV === "production"
     }
 
     return res
     .status(200)
-    .clearCookie("accessToken" , option)
-    .clearCookie("refreshToken" , option)
+    .clearCookie("accessToken" , options)
+    .clearCookie("refreshToken" , options)
     .json(new ApiResponse(200 , {} , "User logged Out"))
 })
 
