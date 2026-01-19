@@ -5,6 +5,7 @@ import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 import { Subscription } from "../models/subscription.model.js";
+import mongoose from "mongoose";
 
 const generateAccessAndRefereshToken = async(userId)=>
     {
@@ -458,6 +459,62 @@ const getUserChannelProfile = asyncHandler(async(req , res)=>{
     )
 })
 
+const getWatchHistory = asyncHandler(async(req , res)=>{
+   // req.user._id //req.user._id gives us the string not the mongodb id but here we are using the mangoos, it will convert that string to the mongodb id;
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)// we are not calling it as shown in above comment because here we are in mongo so we have to convert it by our side;
+
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project:{
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields:{ // doing it because we get an array on which first value will be owner and due to array we have to perform itration thats why we are avoding it  , we name it as owner so that it overwrite the existing data and return the objct
+                            owner:{
+                                $first: "$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            user[0].watchHistory,
+            "Watch history fetched successfully"
+        )
+    )
+})
+
 export {
     registerUser,
     loginUser,
@@ -468,6 +525,7 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    getUserChannelProfile
+    getUserChannelProfile,
+    getWatchHistory
 
 }
